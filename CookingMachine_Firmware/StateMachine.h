@@ -100,7 +100,11 @@ void runStateMachine() {
   
   bool tempReached = true;
   if (currentStep.targetTemp > 0) {
-    if (currentTemperature < currentStep.targetTemp) {
+    if (currentTemperature <= -100.0) {
+      // SENSOR FAULT! DO NOT HEAT!
+      tempReached = false;
+      setHeater(false);
+    } else if (currentTemperature < currentStep.targetTemp) {
       tempReached = false; // Still heating
       // Ensure heater is ON while heating to target
       setHeater(true);

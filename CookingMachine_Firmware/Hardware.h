@@ -2,14 +2,13 @@
 #define HARDWARE_H
 
 #include <Arduino.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
+#include <DHT.h>
 #include <ESP32Servo.h>
 #include "Config.h"
 
 // Globals
-OneWire oneWire(PIN_TEMP_DATA);
-DallasTemperature tempSensor(&oneWire);
+#define DHTTYPE DHT11
+DHT dht(PIN_TEMP_DATA, DHTTYPE);
 Servo ingredientServo;
 
 // Variables
@@ -51,16 +50,17 @@ void initHardware() {
   ingredientServo.write(0); // Home position
 
   // Temp Sensor
-  tempSensor.begin();
+  dht.begin();
 }
 
 void updateSensors() {
   unsigned long currentMillis = millis();
   if (currentMillis - lastTempUpdate >= TEMP_SENSOR_UPDATE_INTERVAL_MS) {
     lastTempUpdate = currentMillis;
-    tempSensor.requestTemperatures();
-    float temp = tempSensor.getTempCByIndex(0);
-    if (temp > -100.0) {
+    float temp = dht.readTemperature();
+    if (isnan(temp)) {
+      currentTemperature = -127.0; // Propagate fault code if reading fails
+    } else {
       currentTemperature = temp;
     }
   }

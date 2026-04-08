@@ -17,6 +17,7 @@
 // Target IP configuration is handled by ESP32 defaults (192.168.4.1)
 
 // General Config
-#define TEMP_SENSOR_UPDATE_INTERVAL_MS 1000
+// DHT11 requires at least 2000ms between readings
+#define TEMP_SENSOR_UPDATE_INTERVAL_MS 2000
 
 #endif // CONFIG_H

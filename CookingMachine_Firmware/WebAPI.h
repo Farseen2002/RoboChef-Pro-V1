@@ -119,8 +119,9 @@ void handleStartCustom() {
     customRecipe.steps[i].usesWaterPump = stepObj["usesWaterPump"] | false;
     customRecipe.steps[i].usesOilPump = stepObj["usesOilPump"] | false;
     
-    customRecipe.steps[i].waterPumpTimeMs = stepObj["waterPumpTimeMs"] | 0;
-    customRecipe.steps[i].oilPumpTimeMs = stepObj["oilPumpTimeMs"] | 0;
+    customRecipe.steps[i].waterPumpTimeMs = customRecipe.steps[i].usesWaterPump ? (stepObj["waterPumpTimeMs"] | 0) : 0;
+    customRecipe.steps[i].oilPumpTimeMs = customRecipe.steps[i].usesOilPump ? (stepObj["oilPumpTimeMs"] | 0) : 0;
+    customRecipe.steps[i].targetTemp = customRecipe.steps[i].usesHeater ? (stepObj["targetTemp"] | 0) : 0;
   }
   
   startRecipe("custom");

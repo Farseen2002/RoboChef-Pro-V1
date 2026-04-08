@@ -67,10 +67,10 @@ const RecipeEditor = () => {
         steps: steps.map(s => ({
           ...s,
           durationMs: parseInt(s.durationMs) || 0,
-          targetTemp: parseFloat(s.targetTemp) || 0,
-          waterPumpTimeMs: parseInt(s.waterPumpTimeMs) || 0,
-          oilPumpTimeMs: parseInt(s.oilPumpTimeMs) || 0,
-          servoPartition: parseInt(s.servoPartition) || -1
+          targetTemp: s.usesHeater ? (parseFloat(s.targetTemp) || 0) : 0,
+          waterPumpTimeMs: s.usesWaterPump ? (parseInt(s.waterPumpTimeMs) || 0) : 0,
+          oilPumpTimeMs: s.usesOilPump ? (parseInt(s.oilPumpTimeMs) || 0) : 0,
+          servoPartition: s.servoPartition > 0 ? (parseInt(s.servoPartition) || -1) : -1
         }))
       };
       
