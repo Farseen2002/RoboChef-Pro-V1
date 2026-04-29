@@ -98,19 +98,29 @@ void runStateMachine() {
   RecipeStep currentStep = activeRecipe->steps[currentRecipeStepIndex];
   unsigned long elapsed = millis() - currentStepStartTime;
   
-  bool tempReached = true;
+  // Heater and Temperature Control with 5 degree hysteresis
   if (currentStep.targetTemp > 0) {
     if (currentTemperature <= -100.0) {
       // SENSOR FAULT! DO NOT HEAT!
-      tempReached = false;
       setHeater(false);
-    } else if (currentTemperature < currentStep.targetTemp) {
-      tempReached = false; // Still heating
-      // Ensure heater is ON while heating to target
-      setHeater(true);
     } else {
-      // Temperature reached, toggle heater off to prevent overcooking
-      setHeater(false);
+      if (!targetTempReached) {
+        // Heating phase
+        if (currentTemperature >= currentStep.targetTemp) {
+          targetTempReached = true;
+          cookPhaseStartTime = millis();
+          setHeater(false); // Reached target, turn off heater
+        } else {
+          setHeater(true); // Ensure heater is ON while heating to target
+        }
+      } else {
+        // Cooking phase - maintain temperature with 5-degree hysteresis
+        if (currentTemperature <= (currentStep.targetTemp - 5.0)) {
+          setHeater(true);
+        } else if (currentTemperature >= currentStep.targetTemp) {
+          setHeater(false);
+        }
+      }
     }
   }
 
@@ -128,12 +138,7 @@ void runStateMachine() {
 
   // Check duration
   if (currentStep.targetTemp > 0) {
-    if (tempReached) {
-      if (!targetTempReached) {
-        // Temperature just reached the target, start the real cooking breakdown
-        targetTempReached = true;
-        cookPhaseStartTime = millis();
-      }
+    if (targetTempReached) {
       unsigned long cookElapsed = millis() - cookPhaseStartTime;
       if (currentStep.durationMs > 0 && cookElapsed >= currentStep.durationMs) {
         advanceStep();
